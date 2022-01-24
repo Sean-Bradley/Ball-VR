@@ -51,7 +51,7 @@ Note that it creates a self certified SSL cert for your dev environment.
 
 If you are accessing your dev server across a network, then you will need to allow access to port 8080 on your development machine.
 
-I use Windows 11 with my dev setup, i have allowed connections to port 8080 using the Window Defender Firewall (Advanced Settings) and I can can connect to my dev servers network IP address, eg https://192.168.1.123:8080 using the Quest 2 browser.
+I use Windows 11 with my dev setup, I have allowed connections to port 8080 using the Window Defender Firewall (Advanced Settings) and I can can connect to my dev servers internal network IP address, eg https://192.168.1.123:8080 using the chrome browser in the Oculus Quest 2.
 
 For more in depth information on production server deployment options, such as SSL, Domain name & Cloud hosting, visit [https://sbcode.net/threejs/nginx-host/](https://sbcode.net/threejs/nginx-host/)
 
