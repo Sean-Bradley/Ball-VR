@@ -4,18 +4,14 @@ A ball rolling experiment in VR.
 
 Playable Demo : [https://ball-vr.sbcode.net](https://ball-vr.sbcode.net)
 
+### Oculus Quest 2 VR
+
+-   Right Controller : Roll forwards, backwards, change direction.
+
 ### Desktop
 
--   Drive : WASD
--   Brakes : SPACE
--   Look : MOUSE
--   Shoot : Left Mouse Click
--   Respawn : R
-
-### Mobile
-
--   Left XY Controller : Drive, Tap to shoot
--   Right XY Controller : Look, Aim, Tap to shoot
+-   Roll : WASD
+-   Look/Change Forward Direction : Mouse
 
 ## Develop
 

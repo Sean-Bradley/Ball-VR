@@ -161,7 +161,7 @@ export default class UI {
             //document.removeEventListener('click', this.onClick, false)
             document.removeEventListener('keydown', this.onDocumentKey, false)
             document.removeEventListener('keyup', this.onDocumentKey, false)
-            //this.menuPanel.style.display = 'block'
+            this.menuPanel.style.display = 'block'
             this.menuActive = true
         }
     }
