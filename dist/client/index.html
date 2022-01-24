@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+        />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <title>Three.js TypeScript Tutorials by Sean Bradley</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                font-family: monospace;
+                color: #dddddd;
+                background-color: black;
+            }
+
+            h1 {
+                font-size: 56px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            /* #pingStats {
+                position: absolute;
+                top: 60px;
+                left: 4px;
+                width: 400px;
+                height: 400px;
+                pointer-events: none;
+            } */
+
+            #menuPanel {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                display: none;
+            }
+
+            #menuPanel a {
+                pointer-events: auto;
+                color: #dddddd;
+            }
+
+            #instructions {
+                background-color: rgba(0, 0, 0, 0.5);
+                height: 500px;
+                width: 760px;
+                margin-top: -250px;
+                margin-left: -380px;
+                position: relative;
+                top: 50%;
+                left: 50%;
+                font-size: 17px;
+                border: 1px solid gray;
+                text-align: center;
+                pointer-events: none;
+            }
+
+            #startButton {
+                width: 200px;
+                pointer-events: auto;
+                padding: 12px 6px;
+                border: 1px solid rgb(255, 255, 255);
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.1);
+                color: rgb(255, 255, 255);
+                font: 13px sans-serif;
+                text-align: center;
+                opacity: 0.5;
+                outline: none;
+                cursor: pointer;
+            }
+
+            #vrCommands,
+            #desktopCommands {
+                margin: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="gameClock"></div>
+        <div id="menuPanel">
+            <div id="instructions">
+                <h1>Ball VR</h1>
+                <h2>A ball rolling experiment in VR</h2>
+                <p>
+                    GitHub :
+                    <a href="https://github.com/Sean-Bradley/Ball-VR" target="_blank"
+                        >https://github.com/Sean-Bradley/Ball-VR</a
+                    >
+                </p>
+                <div id="vrCommands">
+                    <b>VR Controls</b><br />Right Controller : Roll forwards, backwards, change
+                    direction.
+                </div>
+                <div id="desktopCommands">
+                    <b>Desktop Controls</b><br />
+                    Roll : WASD<br />
+                    Look/Change Forward Direction : Mouse<br />
+                </div>
+                <button id="startButton">ENTER DESKTOP VERSION</button>
+            </div>
+        </div>
+        <!-- <div id="pingStats"></div> -->
+        <script type="module" src="bundle.js"></script>
+    </body>
+</html>
