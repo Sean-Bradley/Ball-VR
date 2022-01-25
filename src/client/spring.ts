@@ -21,10 +21,10 @@ export default class Spring {
                 obj.traverse((child) => {
                     if ((child as THREE.Mesh).isMesh) {
                         const m = child as THREE.Mesh
-                        m.receiveShadow = true
-                        m.castShadow = true
-                        m.material = material
-                        this.mesh = m
+                        // m.receiveShadow = true
+                        // m.castShadow = true
+                        this.mesh.material = material
+                        this.mesh.geometry = m.geometry
                     }
                 })
 
@@ -44,7 +44,7 @@ export default class Spring {
     }
 
     randomise() {
-        const p = this.earth.getSpawnPosition()
+        const p = this.earth.getSpawnPosition(5)
         this.mesh.position.copy(p)
         this.mesh.lookAt(0, 0, 0)      
     }

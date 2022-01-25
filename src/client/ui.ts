@@ -37,15 +37,15 @@ export default class UI {
             this.controllerConnected[0] = true
             this.gamePads[0] = e.data.gamepad
         })
-        this.controllerGrip1.addEventListener('connected', (e: any) => {
-            this.controllerConnected[1] = true
-            this.gamePads[1] = e.data.gamepad
-        })
-        // this.controllerGrip0.addEventListener('selectstart', (e: any) => {
-        //     if (this.controllerConnected[0]) {
-        //         this.ball.jump()
-        //     }
+        // this.controllerGrip1.addEventListener('connected', (e: any) => {
+        //     this.controllerConnected[1] = true
+        //     this.gamePads[1] = e.data.gamepad
         // })
+        this.controllerGrip0.addEventListener('selectstart', (e: any) => {
+            if (this.controllerConnected[0]) {
+                this.ball.jump()
+            }
+        })
         // this.controllerGrip1.addEventListener('selectstart', (e: any) => {
         //     if (this.controllerConnected[1]) {
         //         this.ball.jump()
@@ -141,7 +141,7 @@ export default class UI {
                 this.onDocumentMouseWheel,
                 false
             )
-            //document.addEventListener('click', this.onClick, false)
+            document.addEventListener('click', this.onClick, false)
             document.addEventListener('keydown', this.onDocumentKey, false)
             document.addEventListener('keyup', this.onDocumentKey, false)
 
@@ -158,7 +158,7 @@ export default class UI {
                 this.onDocumentMouseWheel,
                 false
             )
-            //document.removeEventListener('click', this.onClick, false)
+            document.removeEventListener('click', this.onClick, false)
             document.removeEventListener('keydown', this.onDocumentKey, false)
             document.removeEventListener('keyup', this.onDocumentKey, false)
             this.menuPanel.style.display = 'block'
@@ -166,6 +166,9 @@ export default class UI {
         }
     }
 
+    onClick = () => {
+        this.ball.jump()
+    }
     onDocumentKey = (e: KeyboardEvent) => {
         this.keyMap[e.key] = e.type === 'keydown'
     }

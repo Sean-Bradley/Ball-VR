@@ -290,7 +290,7 @@ void main() {
         return new THREE.Vector3(x, y, z)
     }
 
-    getSpawnPosition(p?: THREE.Vector3) {
+    getSpawnPosition(lift: number, p?: THREE.Vector3) {
         const raycaster = new THREE.Raycaster()
 
         const outside = new THREE.Vector3()
@@ -308,7 +308,7 @@ void main() {
         const intersects = raycaster.intersectObjects(this.planes, false)
         let pos = new THREE.Vector3()
         if (intersects.length > 0) {
-            pos = intersects[0].point.addScaledVector(outside.normalize(), 5)
+            pos = intersects[0].point.addScaledVector(outside.normalize(), lift)
         }
         return pos
     }

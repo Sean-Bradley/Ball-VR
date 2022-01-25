@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { GUI } from 'dat.gui'
+import StatsVR from 'statsvr'
+import Earth from './earth'
 
 export default class Ball {
     scene: THREE.Scene
@@ -26,17 +28,22 @@ export default class Ball {
     totalForce = new THREE.Vector3()
     vrActive = false
     targetPivotRotation = 0
+    raycaster = new THREE.Raycaster()
+    earth: Earth
+    bouncables: THREE.Mesh[] = []
 
     constructor(
         scene: THREE.Scene,
         world: CANNON.World,
         camera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer
+        renderer: THREE.WebGLRenderer,
+        earth: Earth
     ) {
         this.scene = scene
         this.world = world
         this.camera = camera
         this.renderer = renderer
+        this.earth = earth
 
         this.object3D = new THREE.Object3D()
         this.scene.add(this.object3D)
@@ -77,6 +84,10 @@ export default class Ball {
 
         this.body = new CANNON.Body({ mass: 1 })
         this.body.addShape(new CANNON.Sphere(1))
+        // this.body.addEventListener('collide', (e: any) => {
+        //     //if (e.contact.ni.dot(new CANNON.Vec3(0, 1, 0)) < -0.5) {
+        //     //}
+        // })
         this.world.addBody(this.body)
 
         this.chaseCam = new THREE.Object3D()
@@ -84,16 +95,37 @@ export default class Ball {
         this.chaseCam.rotateX(-Math.PI / 2)
         this.pivot.add(this.chaseCam)
 
-        const gui = new GUI()
-        gui.add(this.material, 'reflectivity', 0, 1.0)
-        gui.add(this.material, 'transmission', 0, 1.0)
-        gui.add(this.material, 'roughness', 0, 1.0)
-        gui.add(this.material, 'metalness', 0, 1.0)
-        gui.add(this.material, 'clearcoat', 0, 1.0)
-        gui.add(this.material, 'clearcoatRoughness', 0, 1.0)
-        gui.add(this.material, 'ior', 1.0, 2.333)
-        gui.add(this.material, 'thickness', 0, 100)
-        gui.open()
+        // const gui = new GUI()
+        // gui.add(this.material, 'reflectivity', 0, 1.0)
+        // gui.add(this.material, 'transmission', 0, 1.0)
+        // gui.add(this.material, 'roughness', 0, 1.0)
+        // gui.add(this.material, 'metalness', 0, 1.0)
+        // gui.add(this.material, 'clearcoat', 0, 1.0)
+        // gui.add(this.material, 'clearcoatRoughness', 0, 1.0)
+        // gui.add(this.material, 'ior', 1.0, 2.333)
+        // gui.add(this.material, 'thickness', 0, 100)
+        // gui.open()
+
+        this.earth.planes.forEach((p) => {
+            this.bouncables.push(p)
+        })
+    }
+
+    jump() {
+        const dir = this.object3D.position.clone().negate().normalize()
+        this.raycaster.set(this.object3D.position, dir)
+
+        const intersects = this.raycaster.intersectObjects(this.bouncables, false)
+        if (intersects.length > 0) {
+            if (intersects[0].distance < 1.2) {
+                const v = new CANNON.Vec3(
+                    this.mesh.position.x * 5,
+                    this.mesh.position.y * 5,
+                    this.mesh.position.z * 5
+                )
+                this.body.applyForce(v)
+            }
+        }
     }
 
     spawn(startPosition: THREE.Vector3) {
