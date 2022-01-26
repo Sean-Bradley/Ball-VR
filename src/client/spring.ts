@@ -7,12 +7,12 @@ import Earth from './earth'
 export default class Spring {
     private earth: Earth
     mesh = new THREE.Mesh()
+    static material = new THREE.MeshMatcapMaterial({
+        matcap: new THREE.TextureLoader().load('img/matcap-opal.png')
+    })
 
     constructor(scene: THREE.Scene, earth: Earth) {
         this.earth = earth
-        const material = new THREE.MeshMatcapMaterial({})
-        const texture = new THREE.TextureLoader().load('img/matcap-opal.png')
-        material.matcap = texture
 
         const objLoader = new OBJLoader()
         objLoader.load(
@@ -23,7 +23,7 @@ export default class Spring {
                         const m = child as THREE.Mesh
                         // m.receiveShadow = true
                         // m.castShadow = true
-                        this.mesh.material = material
+                        this.mesh.material = Spring.material
                         this.mesh.geometry = m.geometry
                     }
                 })

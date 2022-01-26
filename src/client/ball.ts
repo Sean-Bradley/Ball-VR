@@ -117,7 +117,7 @@ export default class Ball {
 
         const intersects = this.raycaster.intersectObjects(this.bouncables, false)
         if (intersects.length > 0) {
-            if (intersects[0].distance < 1.2) {
+            if (intersects[0].distance < 1.25) {
                 const v = new CANNON.Vec3(
                     this.mesh.position.x * 5,
                     this.mesh.position.y * 5,
@@ -197,15 +197,20 @@ export default class Ball {
             this.vForward.applyQuaternion(this.camera.quaternion)
             this.vForward.multiplyScalar(this.forwardForce * 20)
             this.totalForce.add(this.vForward)
+            // const v = new CANNON.Vec3(this.totalForce.x, this.totalForce.y, this.totalForce.z)
+            // v.normalize()
+            // this.body.applyImpulse(v)
         }
         if (this.adjustingRightForce) {
             this.vRight.set(0, 0, 1)
             this.vRight.applyQuaternion(this.camera.quaternion)
             this.vRight.multiplyScalar(this.rightForce * 20)
-            this.totalForce.add(this.vRight)
+            this.totalForce.add(this.vRight)            
         }
         if (this.adjustingForwardForce || this.adjustingRightForce) {
             this.body.angularVelocity.set(this.totalForce.x, this.totalForce.y, this.totalForce.z)
+
+          
         }
     }
 }

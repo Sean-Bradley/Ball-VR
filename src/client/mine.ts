@@ -9,6 +9,7 @@ export default class Mine {
     scene: THREE.Scene
     private earth: Earth
     mesh = new THREE.Mesh()
+    static material = new THREE.MeshPhongMaterial({ color: 0x000000 })
     explosions: { [id: string]: Explosion } = {}
 
     constructor(scene: THREE.Scene, earth: Earth, explosions: { [id: string]: Explosion }) {
@@ -19,7 +20,7 @@ export default class Mine {
         //const texture = new THREE.TextureLoader().load('img/matcap-opal.png')
         //material.matcap = texture
 
-        const material = new THREE.MeshPhongMaterial({ color: 0x000000 })
+        
 
         const objLoader = new OBJLoader()
         objLoader.load(
@@ -30,7 +31,7 @@ export default class Mine {
                         const m = child as THREE.Mesh
                         // m.receiveShadow = true
                         // m.castShadow = true
-                        this.mesh.material = material
+                        this.mesh.material = Mine.material
                         this.mesh.geometry = m.geometry
                         this.mesh.geometry.rotateX(-Math.PI / 2)
                     }

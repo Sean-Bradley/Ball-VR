@@ -79,6 +79,9 @@ export default class Game {
             //this.earth.update(delta)
             this.cosmos.update(delta)
 
+            Object.keys(this.platforms).forEach((o) => {
+                this.platforms[o].update(delta, this.ball as Ball)
+            })
             Object.keys(this.springs).forEach((o) => {
                 this.springs[o].update(this.ball as Ball)
             })
@@ -90,10 +93,10 @@ export default class Game {
             })
         }
 
-        const gui = new GUI()
-        gui.add(Platform.material, 'roughness', 0, 1.0)
-        gui.add(Platform.material, 'metalness', 0, 1.0)
-        gui.open()
+        // const gui = new GUI()
+        // gui.add(Platform.material, 'roughness', 0, 1.0)
+        // gui.add(Platform.material, 'metalness', 0, 1.0)
+        // gui.open()
     }
 
     update(delta: number) {

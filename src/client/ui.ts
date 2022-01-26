@@ -64,6 +64,10 @@ export default class UI {
         })
 
         this.keyCheckInterval = setInterval(() => {
+            if (this.keyMap[' ']) {
+                this.ball.jump()
+            }
+            
             this.ball.adjustingForwardForce = false
             if (this.keyMap['w']) {
                 if (this.ball.forwardForce < 1) {
