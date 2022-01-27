@@ -5,13 +5,15 @@ import * as CANNON from 'cannon-es'
 import Earth from './earth'
 
 export default class Spring {
+    scene:THREE.Scene
     private earth: Earth
     mesh = new THREE.Mesh()
     static material = new THREE.MeshMatcapMaterial({
-        matcap: new THREE.TextureLoader().load('img/matcap-opal.png')
+        matcap: new THREE.TextureLoader().load('img/matcap-opal.png'),
     })
 
     constructor(scene: THREE.Scene, earth: Earth) {
+        this.scene = scene
         this.earth = earth
 
         const objLoader = new OBJLoader()
@@ -28,9 +30,9 @@ export default class Spring {
                     }
                 })
 
-                scene.add(this.mesh)
+                //scene.add(this.mesh)
 
-                this.randomise()                
+                //this.randomise()
             },
             (xhr) => {
                 console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
@@ -39,27 +41,38 @@ export default class Spring {
                 console.log(error)
             }
         )
-
-        
     }
 
     randomise() {
         const p = this.earth.getSpawnPosition(5)
         this.mesh.position.copy(p)
-        this.mesh.lookAt(0, 0, 0)      
+        this.mesh.lookAt(0, 0, 0)
+    }
+
+    deactivate() {
+        this.update = (ball: Ball) => {}
+        this.scene.remove(this.mesh)
+    }
+
+    activate() {
+        this.update = (ball: Ball) => {
+            const d = this.mesh.position.distanceTo(ball.object3D.position)
+            if (d < 5) {
+                //console.log(d)
+                const v = new CANNON.Vec3(
+                    this.mesh.position.x * 2,
+                    this.mesh.position.y * 2,
+                    this.mesh.position.z * 2
+                )
+                ball.body.applyForce(v)
+            }
+            this.mesh.rotation.z += 0.1
+        }
+        
+        this.scene.add(this.mesh)
     }
 
     update(ball: Ball) {
-        const d = this.mesh.position.distanceTo(ball.object3D.position)
-        if (d < 5) {
-            //console.log(d)
-            const v = new CANNON.Vec3(
-                this.mesh.position.x * 2,
-                this.mesh.position.y * 2,
-                this.mesh.position.z * 2
-            )
-            ball.body.applyForce(v)
-        }
-        this.mesh.rotation.z += 0.1
+        //do not edit this. The function body is created when object is activated
     }
 }

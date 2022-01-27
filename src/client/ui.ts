@@ -2,6 +2,7 @@ import Ball from './ball'
 import Game from './game'
 
 export default class UI {
+    game: Game
     menuActive: boolean
     private renderer: THREE.WebGLRenderer
     ball: Ball
@@ -14,17 +15,24 @@ export default class UI {
     controllerGrip1: THREE.Group
     private controllerConnected: { [id: number]: boolean } = {}
     private gamePads: { [id: number]: Gamepad } = {}
+    selectLevel: HTMLSelectElement
 
-    constructor(renderer: THREE.WebGLRenderer, ball: Ball) {
+    constructor(game: Game, renderer: THREE.WebGLRenderer, ball: Ball) {
+        this.game = game
         this.renderer = renderer
         this.menuActive = false
         this.ball = ball
         this.startButton = document.getElementById('startButton') as HTMLButtonElement
         this.menuPanel = document.getElementById('menuPanel') as HTMLDivElement
+        this.selectLevel = document.getElementById('selectLevel') as HTMLSelectElement
+        // this.selectLevel.addEventListener('change', () => {
+        //     console.log(this.selectLevel.value)
+        // })
 
         this.startButton.addEventListener(
             'click',
             () => {
+                this.game.configureLevel(this.selectLevel.value)
                 renderer.domElement.requestPointerLock()
             },
             false
@@ -55,6 +63,7 @@ export default class UI {
             this.menuActive = false
             this.ball.vrActive = true
             this.ball.chaseCam.add(this.ball.camera)
+            this.game.configureLevel(this.selectLevel.value)
         })
 
         renderer.xr.addEventListener('sessionend', () => {
@@ -67,7 +76,7 @@ export default class UI {
             if (this.keyMap[' ']) {
                 this.ball.jump()
             }
-            
+
             this.ball.adjustingForwardForce = false
             if (this.keyMap['w']) {
                 if (this.ball.forwardForce < 1) {
@@ -150,6 +159,7 @@ export default class UI {
             document.addEventListener('keyup', this.onDocumentKey, false)
 
             this.menuPanel.style.display = 'none'
+            this.startButton.style.display = 'none'
             this.menuActive = false
         } else {
             this.renderer.domElement.removeEventListener(
@@ -165,8 +175,14 @@ export default class UI {
             document.removeEventListener('click', this.onClick, false)
             document.removeEventListener('keydown', this.onDocumentKey, false)
             document.removeEventListener('keyup', this.onDocumentKey, false)
+
             this.menuPanel.style.display = 'block'
             this.menuActive = true
+
+            setTimeout(() => {
+                // delay start to prevent pointerlock error if restarted to quickly
+                this.startButton.style.display = 'inline'
+            }, 1000)
         }
     }
 

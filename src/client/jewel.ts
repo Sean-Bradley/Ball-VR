@@ -1,43 +1,38 @@
 import * as THREE from 'three'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import Ball from './ball'
-import * as CANNON from 'cannon-es'
 import Earth from './earth'
 import Explosion from './explosion'
 
-export default class Mine {
+export default class Jewel {
     scene: THREE.Scene
     private earth: Earth
     mesh = new THREE.Mesh()
-    static material = new THREE.MeshPhongMaterial({ color: 0x000000 })
     explosions: { [id: string]: Explosion } = {}
+
+    static material = new THREE.MeshMatcapMaterial({
+        matcap: new THREE.TextureLoader().load('img/jewel.png'),
+    })
 
     constructor(scene: THREE.Scene, earth: Earth, explosions: { [id: string]: Explosion }) {
         this.scene = scene
         this.earth = earth
         this.explosions = explosions
-        //const material = new THREE.MeshMatcapMaterial({})
-        //const texture = new THREE.TextureLoader().load('img/matcap-opal.png')
-        //material.matcap = texture
 
         const objLoader = new OBJLoader()
         objLoader.load(
-            'models/mine.obj',
+            'models/jewel.obj',
             (obj) => {
                 obj.traverse((child) => {
                     if ((child as THREE.Mesh).isMesh) {
                         const m = child as THREE.Mesh
                         // m.receiveShadow = true
                         // m.castShadow = true
-                        this.mesh.material = Mine.material
+                        this.mesh.material = Jewel.material
                         this.mesh.geometry = m.geometry
                         this.mesh.geometry.rotateX(-Math.PI / 2)
                     }
                 })
-
-                // scene.add(this.mesh)
-
-                // this.randomise()
             },
             (xhr) => {
                 console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
@@ -49,7 +44,7 @@ export default class Mine {
     }
 
     randomise() {
-        const p = this.earth.getSpawnPosition(0)
+        const p = this.earth.getSpawnPosition(1)
         this.mesh.position.copy(p)
         this.mesh.lookAt(0, 0, 0)
     }
@@ -62,24 +57,13 @@ export default class Mine {
     activate() {
         this.update = (ball: Ball) => {
             const d = this.mesh.position.distanceTo(ball.object3D.position)
-            if (d < 3) {
-                const v1 = new CANNON.Vec3(
-                    ball.object3D.position.x,
-                    ball.object3D.position.y,
-                    ball.object3D.position.z
-                )
-                const v2 = new CANNON.Vec3(
-                    this.mesh.position.x,
-                    this.mesh.position.y,
-                    this.mesh.position.z
-                )
-                ball.body.applyForce(v1.vsub(v2).scale(500))
+            if (d < 2) {
                 Object.keys(this.explosions).forEach((o) => {
                     this.explosions[o].explode(this.mesh.position)
                 })
                 this.deactivate()
-                //this.mesh.position.set(0, 0, 0) //hide mine until next round
             }
+            this.mesh.rotation.z -= 0.025
         }
 
         this.scene.add(this.mesh)

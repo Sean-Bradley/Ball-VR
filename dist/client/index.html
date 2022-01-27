@@ -80,8 +80,14 @@
                 cursor: pointer;
             }
 
+            #selectLevel{
+                pointer-events: auto;
+                font: 17px sans-serif;
+            }
+
             #vrCommands,
-            #desktopCommands {
+            #desktopCommands,
+            #selectLevelOptions {
                 margin: 10px;
             }
         </style>
@@ -107,6 +113,16 @@
                     <b>Desktop Controls</b><br />
                     Roll : WASD<br />
                     Look/Change Forward Direction : Mouse<br />
+                </div>
+                <div id="selectLevelOptions">
+                    <label for="selectLevel">Select Level:</label>
+
+                    <select name="selectLevel" id="selectLevel">
+                        <option selected value="random">Random</option>
+                        <option value="level1">Level 1</option>
+                        <option value="level2">Level 2</option>
+                    </select>
+
                 </div>
                 <button id="startButton">ENTER DESKTOP VERSION</button>
             </div>

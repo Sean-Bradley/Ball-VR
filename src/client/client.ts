@@ -1,8 +1,6 @@
 import * as THREE from 'three'
-//import Stats from 'three/examples/jsm/libs/stats.module'
-import CannonDebugRenderer from './utils/cannonDebugRenderer'
+//import CannonDebugRenderer from './utils/cannonDebugRenderer'
 import Game from './game'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import StatsVR from 'statsvr'
 
 const scene = new THREE.Scene()
@@ -25,8 +23,6 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.xr.enabled = true
 document.body.appendChild(renderer.domElement)
 
-document.body.appendChild(VRButton.createButton(renderer))
-
 const game = new Game(scene, camera, renderer)
 
 window.addEventListener('resize', onWindowResize, false)
@@ -36,13 +32,10 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
-// const stats = Stats()
-// document.body.appendChild(stats.dom)
-
 const clock = new THREE.Clock()
 let delta
 
-const cannonDebugRenderer = new CannonDebugRenderer(scene, game.physics.world)
+//const cannonDebugRenderer = new CannonDebugRenderer(scene, game.physics.world)
 
 renderer.setAnimationLoop(() => {
     delta = Math.min(clock.getDelta(), 0.1)

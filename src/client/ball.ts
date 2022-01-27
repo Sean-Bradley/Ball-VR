@@ -106,9 +106,7 @@ export default class Ball {
         // gui.add(this.material, 'thickness', 0, 100)
         // gui.open()
 
-        this.earth.planes.forEach((p) => {
-            this.bouncables.push(p)
-        })
+        
     }
 
     jump() {
@@ -117,6 +115,7 @@ export default class Ball {
 
         const intersects = this.raycaster.intersectObjects(this.bouncables, false)
         if (intersects.length > 0) {
+            console.log(intersects.length + " " + intersects[0].distance)
             if (intersects[0].distance < 1.25) {
                 const v = new CANNON.Vec3(
                     this.mesh.position.x * 5,

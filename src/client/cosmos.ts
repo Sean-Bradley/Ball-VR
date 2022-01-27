@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js'
+import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare'
 
 export default class Cosmos {
     lightPivot: THREE.Object3D
