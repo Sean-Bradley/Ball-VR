@@ -3,8 +3,10 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import Ball from './ball'
 import Earth from './earth'
 import Explosion from './explosion'
+import Game from './game'
 
 export default class Jewel {
+    game: Game
     scene: THREE.Scene
     private earth: Earth
     mesh = new THREE.Mesh()
@@ -14,7 +16,13 @@ export default class Jewel {
         matcap: new THREE.TextureLoader().load('img/jewel.png'),
     })
 
-    constructor(scene: THREE.Scene, earth: Earth, explosions: { [id: string]: Explosion }) {
+    constructor(
+        game: Game,
+        scene: THREE.Scene,
+        earth: Earth,
+        explosions: { [id: string]: Explosion }
+    ) {
+        this.game = game
         this.scene = scene
         this.earth = earth
         this.explosions = explosions
@@ -62,6 +70,7 @@ export default class Jewel {
                     this.explosions[o].explode(this.mesh.position)
                 })
                 this.deactivate()
+                this.game.numJewelsFound += 1
             }
             this.mesh.rotation.z -= 0.025
         }

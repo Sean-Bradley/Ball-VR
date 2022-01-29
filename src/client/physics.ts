@@ -5,6 +5,7 @@ export default class Physics {
 
     constructor() {
         this.world = new CANNON.World()
+        ;(this.world.solver as CANNON.GSSolver).iterations = 5
         this.world.gravity.set(0, -1, 0)
 
         this.world.addEventListener('postStep', () => {

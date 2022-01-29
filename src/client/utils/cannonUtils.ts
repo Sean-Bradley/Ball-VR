@@ -1,5 +1,5 @@
 //MIT License
-//Copyright (c) 2020-2021 Sean Bradley
+//Copyright (c) 2020-2022 Sean Bradley
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 

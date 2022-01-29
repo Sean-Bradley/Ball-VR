@@ -1,21 +1,37 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as CANNON from 'cannon-es'
+import Ball from './ball'
+import Explosion from './explosion'
+import CannonUtils from './utils/cannonUtils'
+import Game from './game'
+import UI from './ui'
 
-export default class StartPodium {
+export default class FinishPodium {
     scene: THREE.Scene
     world: CANNON.World
+    game: Game
     mesh = new THREE.Mesh()
     body = new CANNON.Body()
     texture = new THREE.Texture()
+    explosions: { [id: string]: Explosion } = {}
+    explosionCounter = 0
+    winnerAnimationInterval?: NodeJS.Timer
 
-    constructor(scene: THREE.Scene, world: CANNON.World) {
+    constructor(
+        scene: THREE.Scene,
+        world: CANNON.World,
+        explosions: { [id: string]: Explosion },
+        game: Game
+    ) {
         this.scene = scene
         this.world = world
+        this.explosions = explosions
+        this.game = game
 
         const gltfLoader = new GLTFLoader()
         gltfLoader.load(
-            'models/start.glb',
+            'models/finish.glb',
             (gltf) => {
                 gltf.scene.traverse((child) => {
                     if ((child as THREE.Mesh).isMesh) {
@@ -43,6 +59,8 @@ export default class StartPodium {
     }
 
     deactivate() {
+        clearInterval(this.winnerAnimationInterval as NodeJS.Timer)
+        this.update = (ball: Ball) => {}
         this.scene.remove(this.mesh)
         this.world.removeBody(this.body)
     }
@@ -61,5 +79,29 @@ export default class StartPodium {
             this.mesh.quaternion.w
         )
         this.world.addBody(this.body)
+
+        this.update = (ball: Ball) => {
+            const d = this.mesh.position.distanceTo(ball.object3D.position)
+            if (d < 3.5) {
+                //this.game.gamePhase = 1
+                this.explosionCounter = 0
+                ball.deactivate()
+                this.explosions[this.explosionCounter].explode(this.mesh.position)
+                this.explosionCounter += 1
+                this.winnerAnimationInterval = setInterval(() => {
+                    this.explosions[this.explosionCounter].explode(this.mesh.position)
+                    this.explosionCounter += 1
+                    if (this.explosionCounter > 2) {
+                        this.explosionCounter = 0
+                    }
+                }, 250)
+                this.update = (ball: Ball) => {}
+                this.game.endRound()                
+            }
+        }
+    }
+
+    update(ball: Ball) {
+        //do not edit this. The function body is created when object is activated
     }
 }

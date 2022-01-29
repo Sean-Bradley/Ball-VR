@@ -9,7 +9,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000)
-camera.position.set(0, 110, -5)
+camera.position.set(0, 100, 70)
 
 const statsVR = new StatsVR(scene, camera)
 statsVR.setX(-0.25)
@@ -23,7 +23,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.xr.enabled = true
 document.body.appendChild(renderer.domElement)
 
-const game = new Game(scene, camera, renderer)
+const game = new Game(scene, camera, renderer, statsVR)
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -48,6 +48,8 @@ renderer.setAnimationLoop(() => {
 
     statsVR.update()
 })
+
+
 
 // setInterval(() => {
 //     statsVR.setCustom1(String(renderer.info.render.calls))

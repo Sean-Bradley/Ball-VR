@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import { GUI } from 'dat.gui'
-import StatsVR from 'statsvr'
 import Earth from './earth'
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
 
 export default class Ball {
     scene: THREE.Scene
@@ -24,7 +23,7 @@ export default class Ball {
     adjustingRightForce = false
     vForward = new THREE.Vector3(-1, 0, 0)
     vRight = new THREE.Vector3(0, 0, 1)
-    enabled = false
+    //enabled = false
     totalForce = new THREE.Vector3()
     vrActive = false
     targetPivotRotation = 0
@@ -55,11 +54,11 @@ export default class Ball {
         // const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(16, {})
         // this.cubeCamera = new THREE.CubeCamera(0.1, 50, cubeRenderTarget)
         // this.scene.add(this.cubeCamera)
-        // const material = new THREE.MeshBasicMaterial({
+        // this.material = new THREE.MeshBasicMaterial({
         //     map: new THREE.TextureLoader().load('img/marble.png'),
         //     reflectivity: 0.9,
         //     color: 0xffffff,
-        //     envMap: cubeRenderTarget.texture,
+        //     //envMap: cubeRenderTarget.texture,
         //     side: THREE.FrontSide,
         // })
 
@@ -105,8 +104,6 @@ export default class Ball {
         // gui.add(this.material, 'ior', 1.0, 2.333)
         // gui.add(this.material, 'thickness', 0, 100)
         // gui.open()
-
-        
     }
 
     jump() {
@@ -115,7 +112,7 @@ export default class Ball {
 
         const intersects = this.raycaster.intersectObjects(this.bouncables, false)
         if (intersects.length > 0) {
-            console.log(intersects.length + " " + intersects[0].distance)
+            //console.log(intersects.length + ' ' + intersects[0].distance)
             if (intersects[0].distance < 1.25) {
                 const v = new CANNON.Vec3(
                     this.mesh.position.x * 5,
@@ -130,7 +127,7 @@ export default class Ball {
     spawn(startPosition: THREE.Vector3) {
         console.log('Spawn Ball')
 
-        this.enabled = false
+        //this.enabled = false
 
         this.world.removeBody(this.body)
 
@@ -148,68 +145,110 @@ export default class Ball {
         this.body.position.set(startPosition.x, startPosition.y, startPosition.z)
         this.body.quaternion.copy(q)
 
-        setTimeout(() => {
-            this.body.velocity.set(0, 0, 0)
-            this.body.angularVelocity.set(0, 0, 0)
-            this.world.addBody(this.body)
-            this.enabled = true
-        }, 1000)
+        this.body.velocity.set(0, 0, 0)
+        this.body.angularVelocity.set(0, 0, 0)
+
+        // setTimeout(() => {
+        //     this.activate()
+        // }, 500)
+
+        //this.camera.position.z = 200
+        new TWEEN.Tween(this.chaseCam.position)
+            .to({ y: 5 }, 1000)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start()
     }
 
     lerp = (x: number, y: number, a: number): number => {
         return (1 - a) * x + a * y
     }
 
-    update(delta: number) {
-        this.object3D.position.set(this.body.position.x, this.body.position.y, this.body.position.z)
-        this.object3D.lookAt(0, 0, 0)
+    deactivate() {
+        this.update = (delta: number) => {
+            if (!this.vrActive) {
+                this.chaseCam.getWorldPosition(this.camPos)
+                this.camera.position.lerpVectors(this.camera.position, this.camPos, 0.2)
 
-        this.mesh.position.copy(this.object3D.position)
-        this.mesh.quaternion.set(
-            this.body.quaternion.x,
-            this.body.quaternion.y,
-            this.body.quaternion.z,
-            this.body.quaternion.w
-        )
-        // this.mesh.visible = false
-        // this.cubeCamera.position.copy(this.mesh.position)
-        // this.cubeCamera.update(this.renderer, this.scene)
-        // this.mesh.visible = true
-
-        if (!this.vrActive) {
-            this.chaseCam.getWorldPosition(this.camPos)
-            this.camera.position.lerpVectors(this.camera.position, this.camPos, 0.2)
-
-            this.chaseCam.getWorldQuaternion(this.camQuat)
-            this.camera.quaternion.slerp(this.camQuat, 0.2)
-        } else {
-            this.pivot.rotation.z = this.lerp(
-                this.pivot.rotation.z,
-                this.targetPivotRotation,
-                0.025
+                this.chaseCam.getWorldQuaternion(this.camQuat)
+                this.camera.quaternion.slerp(this.camQuat, 0.2)
+            } else {
+                this.pivot.rotation.z = this.lerp(
+                    this.pivot.rotation.z,
+                    this.targetPivotRotation,
+                    0.025
+                )
+            }
+        }
+        this.world.removeBody(this.body)
+    }
+    activate() {
+        // this.forwardForce = 0
+        // this.rightForce = 0
+        this.update = (delta: number) => {
+            this.object3D.position.set(
+                this.body.position.x,
+                this.body.position.y,
+                this.body.position.z
             )
+            this.object3D.lookAt(0, 0, 0)
+
+            this.mesh.position.copy(this.object3D.position)
+            this.mesh.quaternion.set(
+                this.body.quaternion.x,
+                this.body.quaternion.y,
+                this.body.quaternion.z,
+                this.body.quaternion.w
+            )
+
+            if (!this.vrActive) {
+                this.chaseCam.getWorldPosition(this.camPos)
+                this.camera.position.lerpVectors(this.camera.position, this.camPos, 0.2)
+
+                this.chaseCam.getWorldQuaternion(this.camQuat)
+                this.camera.quaternion.slerp(this.camQuat, 0.2)
+            } else {
+                this.pivot.rotation.z = this.lerp(
+                    this.pivot.rotation.z,
+                    this.targetPivotRotation,
+                    0.025
+                )
+            }
+
+            this.totalForce.set(0, 0, 0)
+            if (this.adjustingForwardForce) {
+                this.vForward.set(-1, 0, 0)
+                this.vForward.applyQuaternion(this.camera.quaternion)
+                this.vForward.multiplyScalar(this.forwardForce * 20)
+                this.totalForce.add(this.vForward)
+                // const v = new CANNON.Vec3(this.totalForce.x, this.totalForce.y, this.totalForce.z)
+                // v.normalize()
+                // this.body.applyImpulse(v)
+            }
+            if (this.adjustingRightForce) {
+                this.vRight.set(0, 0, 1)
+                this.vRight.applyQuaternion(this.camera.quaternion)
+                this.vRight.multiplyScalar(this.rightForce * 20)
+                this.totalForce.add(this.vRight)
+            }
+            if (this.adjustingForwardForce || this.adjustingRightForce) {
+                this.body.angularVelocity.set(
+                    this.totalForce.x,
+                    this.totalForce.y,
+                    this.totalForce.z
+                )
+            }
         }
 
-        this.totalForce.set(0, 0, 0)
-        if (this.adjustingForwardForce) {
-            this.vForward.set(-1, 0, 0)
-            this.vForward.applyQuaternion(this.camera.quaternion)
-            this.vForward.multiplyScalar(this.forwardForce * 20)
-            this.totalForce.add(this.vForward)
-            // const v = new CANNON.Vec3(this.totalForce.x, this.totalForce.y, this.totalForce.z)
-            // v.normalize()
-            // this.body.applyImpulse(v)
-        }
-        if (this.adjustingRightForce) {
-            this.vRight.set(0, 0, 1)
-            this.vRight.applyQuaternion(this.camera.quaternion)
-            this.vRight.multiplyScalar(this.rightForce * 20)
-            this.totalForce.add(this.vRight)            
-        }
-        if (this.adjustingForwardForce || this.adjustingRightForce) {
-            this.body.angularVelocity.set(this.totalForce.x, this.totalForce.y, this.totalForce.z)
+        this.world.addBody(this.body)
+    }
 
-          
-        }
+    update(delta: number) {
+        //do not edit this. The function body is replaced when object is activated
+
+        this.chaseCam.getWorldPosition(this.camPos)
+        this.camera.position.lerpVectors(this.camera.position, this.camPos, 0.2)
+
+        this.chaseCam.getWorldQuaternion(this.camQuat)
+        this.camera.quaternion.slerp(this.camQuat, 0.2)
     }
 }

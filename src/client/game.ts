@@ -1,4 +1,5 @@
 //import socketIO from 'socket.io'
+import * as THREE from 'three'
 import Ball from './ball'
 import Physics from './physics'
 import Earth from './earth'
@@ -9,13 +10,13 @@ import Platform from './platform'
 import Spring from './spring'
 import Mine from './mine'
 import Explosion from './explosion'
-import THREE = require('three')
-import StatsVR from 'statsvr'
-import { GUI } from 'dat.gui'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
 import StartPodium from './startPodium'
+import FinishPodium from './finishPodium'
 import Jewel from './jewel'
+import StatsVR from 'statsvr'
+import InGameUI from './inGameUI'
 
 export default class Game {
     scene: THREE.Scene
@@ -23,6 +24,7 @@ export default class Game {
     renderer: THREE.WebGLRenderer
     physics: Physics
     ball?: Ball
+    gamePhase = 0 // 0 = running, 1 = finished
     earth: Earth
     //water: Water
     cosmos: Cosmos
@@ -33,19 +35,34 @@ export default class Game {
     jewels: { [id: string]: Jewel } = {}
     explosions: { [id: string]: Explosion } = {}
 
+    levels = ['Level1', 'Level2', 'Level3', 'Random']
+
     maxPlatforms = 100
     maxSprings = 10
     maxMines = 10
     maxJewels = 10
 
+    numJewelsRequired = 0
+    numJewelsFound = 0
+    clock = 60
+    clockInterval?: NodeJS.Timer
+
+    startPodium?: StartPodium
+    finishPodium?: FinishPodium
+
+    statsVR: StatsVR
+
     constructor(
         scene: THREE.Scene,
         camera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer
+        renderer: THREE.WebGLRenderer,
+        statsVR: StatsVR
     ) {
         this.scene = scene
         this.camera = camera
         this.renderer = renderer
+        this.statsVR = statsVR
+
         this.physics = new Physics()
 
         this.explosions[0] = new Explosion(new THREE.Color(0xff0000), this.scene)
@@ -73,18 +90,46 @@ export default class Game {
             this.mines[i] = new Mine(this.scene, this.earth, this.explosions)
         }
         for (let i = 0; i < this.maxJewels; i++) {
-            this.jewels[i] = new Jewel(this.scene, this.earth, this.explosions)
+            this.jewels[i] = new Jewel(this, this.scene, this.earth, this.explosions)
         }
 
-        this.ui = new UI(this, this.renderer, this.ball)
+        this.startPodium = new StartPodium(this.scene, this.physics.world)
+        this.finishPodium = new FinishPodium(this.scene, this.physics.world, this.explosions, this)
 
-        //todo. activate when socket connected
-        this.ui.menuActive = true
-        this.ui.menuPanel.style.display = 'block'
+        if ('xr' in navigator) {
+            ;(navigator as any).xr
+                .isSessionSupported('immersive-vr')
+                .then((VRsupported: boolean) => {
+                    this.ui = new UI(
+                        this,
+                        this.scene,
+                        this.renderer,
+                        this.ball as Ball,
+                        VRsupported
+                    )
+
+                    //todo. activate when socket connected
+                    this.ui.menuActive = true
+                    this.ui.menuPanel.style.display = 'block'
+                })
+        } else {
+            this.ui = new UI(this, this.scene, this.renderer, this.ball as Ball, false)
+
+            //todo. activate when socket connected
+            this.ui.menuActive = true
+            this.ui.menuPanel.style.display = 'block'
+        }
     }
 
     resetScene() {
         // removes all objects from scene, bodies from physics world, resets bouncables array
+        this.clock = 0
+        this.numJewelsFound = 0
+
+        ;(this.ui as UI).keyMap = {}
+        ;(this.ball as Ball).forwardForce = 0
+        ;(this.ball as Ball).rightForce = 0
+
         TWEEN.removeAll()
         for (let i = 0; i < this.maxPlatforms; i++) {
             this.platforms[i].deactivate()
@@ -98,15 +143,70 @@ export default class Game {
         for (let i = 0; i < this.maxJewels; i++) {
             this.jewels[i].deactivate()
         }
+        this.startPodium?.deactivate()
+        this.finishPodium?.deactivate()
         ;(this.ball as Ball).bouncables = []
     }
 
     setupLevel(level: string) {
         //positions, activates scene objects and adds bodies to physics world according to level config.
 
-        if (level === 'level1') {
+        let startPosition: THREE.Vector3
+        let finishPosition: THREE.Vector3
+
+        if (level === 'Level1') {
+            this.clock = 60
+            this.numJewelsRequired = 0
+            startPosition = this.earth.getSpawnPosition(1.5, new THREE.Vector3(0, 113, -60))
+            finishPosition = this.earth.getSpawnPosition(0.5, new THREE.Vector3(-5, 113, -90))
+        } else if (level === 'Level2') {
+            this.clock = 60
+            this.numJewelsRequired = 1
+            startPosition = this.earth.getSpawnPosition(1.5, new THREE.Vector3(0, 113, -60))
+            finishPosition = this.earth.getSpawnPosition(0.5, new THREE.Vector3(-5, 113, -90))
+            this.jewels[0].mesh.position.copy(
+                this.earth.getSpawnPosition(1, new THREE.Vector3(-6, 113, -75))
+            )
+            this.jewels[0].mesh.lookAt(0, 0, 0)
+            this.jewels[0].activate()
+        } else if (level === 'Level3') {
+            this.clock = 60
+            this.numJewelsRequired = 2
+            startPosition = new THREE.Vector3(
+                56.290472126136905,
+                -91.15760972440741,
+                -1.1767611220036358
+            )
+            finishPosition = new THREE.Vector3(
+                69.25996137388414,
+                -83.11928497788188,
+                2.5780233471851015
+            )
+            this.jewels[0].mesh.position.set(
+                72.67055907828018,
+                -88.41302174580308,
+                -19.724887711044435
+            )
+            this.jewels[0].mesh.lookAt(0, 0, 0)
+            this.jewels[0].activate()
+            this.jewels[1].mesh.position.set(
+                46.00942241774183,
+                -104.53601177104508,
+                -21.548261873282758
+            )
+            this.jewels[1].mesh.lookAt(0, 0, 0)
+            this.jewels[1].activate()
         } else {
             //default is random
+            this.clock = Math.floor(Math.random() * 100)
+            this.numJewelsRequired = Math.floor(Math.random() * 10)
+
+            startPosition = this.earth.getSpawnPosition(0.5)
+            finishPosition = this.earth.getSpawnPosition(0.5)
+
+            console.log(startPosition)
+            console.log(finishPosition)
+
             for (let i = 0; i < 100; i++) {
                 this.platforms[i].randomise()
                 this.platforms[i].activate()
@@ -132,6 +232,18 @@ export default class Game {
         this.earth.planes.forEach((p) => {
             this.ball?.bouncables.push(p)
         })
+
+        this.startPodium?.activate(startPosition)
+        this.ball?.bouncables.push((this.startPodium as StartPodium).mesh)
+
+        const ballStartPosition = this.earth.getSpawnPosition(5, startPosition)
+        this.ball?.spawn(ballStartPosition)
+
+        this.finishPodium?.activate(finishPosition)
+
+        this.gamePhase = 0
+
+        this.ball?.activate()
     }
 
     configureLevel(value: string) {
@@ -139,27 +251,13 @@ export default class Game {
 
         this.setupLevel(value)
 
-        //const startPosition = new THREE.Vector3(0, 113, 0)
-        const startPosition = this.earth.getSpawnPosition(0.5)
-        const startPodium = new StartPodium(
-            this.scene,
-            startPosition,
-            this.physics.world,
-            this.ball as Ball
-        )
-
-        //console.log(start.mesh.position)
-
-        const ballStartPosition = this.earth.getSpawnPosition(5, startPosition)
-        //console.log(ballStartPosition)
-        this.ball?.spawn(ballStartPosition)
-
         this.update = (delta: number) => {
-            //replace the update function with this
+            //replacing the update function with this
+            TWEEN.update()
 
             this.physics.update(delta)
             ;(this.ball as Ball).update(delta)
-            //this.earth.update(delta)
+
             this.cosmos.update(delta)
 
             Object.keys(this.platforms).forEach((o) => {
@@ -177,9 +275,8 @@ export default class Game {
             Object.keys(this.explosions).forEach((o) => {
                 this.explosions[o].update()
             })
-            
 
-            TWEEN.update()
+            this.finishPodium?.update(this.ball as Ball)
         }
 
         // const gui = new GUI()
@@ -189,7 +286,24 @@ export default class Game {
     }
 
     update(delta: number) {
-        // Dont put anything here
+        // This is only run at first visit to web page
         // this function gets replaced in the earth completed callback
+    }
+
+    startRound() {
+        clearInterval(this.clockInterval as NodeJS.Timeout)
+        this.clockInterval = setInterval(() => {
+            this.clock -= 1
+            ;((this.ui as UI).inGameUI as InGameUI).update(
+                this.clock,
+                this.numJewelsRequired,
+                this.numJewelsFound
+            )
+        }, 1000)
+    }
+
+    endRound() {
+        clearInterval(this.clockInterval as NodeJS.Timeout)
+        ;(this.ui as UI).showRoundStats()
     }
 }

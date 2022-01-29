@@ -78,9 +78,14 @@
                 opacity: 0.5;
                 outline: none;
                 cursor: pointer;
+                display: none;
             }
 
-            #selectLevel{
+            #startButton:hover {
+                opacity: 1.0;
+            }
+
+            #selectLevel {
                 pointer-events: auto;
                 font: 17px sans-serif;
             }
@@ -118,11 +123,10 @@
                     <label for="selectLevel">Select Level:</label>
 
                     <select name="selectLevel" id="selectLevel">
-                        <option selected value="random">Random</option>
+                        <!-- <option selected value="random">Random</option>
                         <option value="level1">Level 1</option>
-                        <option value="level2">Level 2</option>
+                        <option value="level2">Level 2</option> -->
                     </select>
-
                 </div>
                 <button id="startButton">ENTER DESKTOP VERSION</button>
             </div>

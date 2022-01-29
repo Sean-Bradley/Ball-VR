@@ -6,7 +6,7 @@ export default class Earth {
     scene: THREE.Scene
     world: CANNON.World
     topoShaderMaterial: THREE.MeshPhongMaterial
-    material: THREE.MeshBasicMaterial
+    material: THREE.MeshPhongMaterial
     geometries: THREE.BufferGeometry[] = []
     planes: THREE.Mesh[] = []
 
@@ -14,12 +14,12 @@ export default class Earth {
         this.scene = scene
         this.world = world
 
-        this.material = new THREE.MeshBasicMaterial({
+        this.material = new THREE.MeshPhongMaterial({
             //color: 0x00ff00,
-            wireframe: true,
+            //wireframe: true,
             //vertexColors: true,
             //map: texture,
-            //flatShading: false,
+            flatShading: true,
         })
         this.topoShaderMaterial = new THREE.MeshPhongMaterial({
             map: new THREE.TextureLoader().load('img/worldColour.5400x2700.jpg'),
