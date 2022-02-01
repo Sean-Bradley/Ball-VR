@@ -42,7 +42,7 @@ export default class Explosion {
             this.particles.geometry as THREE.BufferGeometry
         ).attributes.position.needsUpdate = true
 
-        this.particles.userData.explosionPower = 1.2
+        this.particles.userData.explosionPower = 1.18
         this.particles.visible = true
     }
 
@@ -61,7 +61,7 @@ export default class Explosion {
             positions[j + 2] = v.z
         }
         if (this.particles.userData.explosionPower > 1.15) {
-            this.particles.userData.explosionPower -= 0.001
+            this.particles.userData.explosionPower -= 0.0001
         } else {
             this.particles.visible = false
         }

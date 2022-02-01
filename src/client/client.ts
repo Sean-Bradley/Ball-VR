@@ -9,7 +9,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000)
-camera.position.set(0, 100, 70)
+camera.position.set(0, 104, 70)
 
 const statsVR = new StatsVR(scene, camera)
 statsVR.setX(-0.25)

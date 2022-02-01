@@ -39,6 +39,7 @@ export default class Jewel {
                         this.mesh.material = Jewel.material
                         this.mesh.geometry = m.geometry
                         this.mesh.geometry.rotateX(-Math.PI / 2)
+                        this.mesh.userData.type = "jewel"
                     }
                 })
             },

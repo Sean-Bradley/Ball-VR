@@ -14,8 +14,8 @@ export default class Ball {
     //cubeCamera: THREE.CubeCamera
     mesh: THREE.Mesh
     body: CANNON.Body
-    private camPos = new THREE.Vector3()
-    private camQuat = new THREE.Quaternion()
+    camPos = new THREE.Vector3()
+    camQuat = new THREE.Quaternion()
     chaseCam = new THREE.Object3D()
     forwardForce = 0
     rightForce = 0
@@ -237,13 +237,30 @@ export default class Ball {
                     this.totalForce.z
                 )
             }
+
+            //allow sliding in air based on camera directions
+            if (Math.abs(this.rightForce) > 0) {
+                const v = new THREE.Vector3(-1, 0, 0)
+                const q = this.camera.quaternion.clone()
+                v.applyQuaternion(q)
+                v.multiplyScalar(this.rightForce / 25)
+                this.body.applyImpulse(new CANNON.Vec3(v.x, v.y, v.z))
+            }
+            if (Math.abs(this.forwardForce) > 0) {
+                //console.log(this.forwardForce)
+                const v = new THREE.Vector3(0, 1, 0)
+                const q = this.camera.quaternion.clone()
+                v.applyQuaternion(q)
+                v.multiplyScalar(this.forwardForce / 25)
+                this.body.applyImpulse(new CANNON.Vec3(v.x, v.y, v.z))
+            }
         }
 
         this.world.addBody(this.body)
     }
 
     update(delta: number) {
-        //do not edit this. The function body is replaced when object is activated
+        //This function body is replaced when ball is activated
 
         this.chaseCam.getWorldPosition(this.camPos)
         this.camera.position.lerpVectors(this.camera.position, this.camPos, 0.2)

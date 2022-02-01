@@ -23,6 +23,7 @@ export default class StartPodium {
                         this.texture = (
                             (child as THREE.Mesh).material as THREE.MeshStandardMaterial
                         ).map as THREE.Texture
+                        this.mesh.userData.type = "startpodium"
                     }
                 })
                 this.body = new CANNON.Body({ mass: 0 })

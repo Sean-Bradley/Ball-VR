@@ -89,30 +89,31 @@ export default class InGameUI {
     }
 
     update(clock: number, jewelsRequired: number, jewelsFound: number) {
-        //console.log(clock)
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-        this.ctx.fillStyle = `rgba(0,0,0,.5)`
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
-        this.ctx.strokeStyle = `rgba(255,255,255,1)`
-        this.ctx.lineWidth = 1
-        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height)
-
-        this.ctx.fillStyle = `rgba(255,255,255,1)`
-        this.ctx.textAlign = 'center'
         if (clock >= 0) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+            this.ctx.fillStyle = `rgba(0,0,0,.5)`
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
+            this.ctx.strokeStyle = `rgba(255,255,255,1)`
+            this.ctx.lineWidth = 1
+            this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height)
+
+            this.ctx.fillStyle = `rgba(255,255,255,1)`
+            this.ctx.textAlign = 'center'
+
             this.ctx.font = '80px monospace'
             this.ctx.fillText(String(clock), 64, 68)
-        }
-        this.ctx.font = '34px monospace'
-        this.ctx.fillText(jewelsFound + '/' + jewelsRequired + '💎', 64, 108)
 
+            this.ctx.font = '34px monospace'
+            this.ctx.fillText(jewelsFound + '/' + jewelsRequired + '💎', 64, 108)
+        }
         this.texture.needsUpdate = true
     }
 
     public activate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.texture.needsUpdate = true
         this.VRsupported ? this.ball.chaseCam.add(this.group) : this.ball.camera.add(this.group)
     }
     public deactivate() {
