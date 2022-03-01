@@ -115,9 +115,9 @@ export default class Ball {
             //console.log(intersects.length + ' ' + intersects[0].distance)
             if (intersects[0].distance < 1.25) {
                 const v = new CANNON.Vec3(
-                    this.mesh.position.x * 5,
-                    this.mesh.position.y * 5,
-                    this.mesh.position.z * 5
+                    this.mesh.position.x * 2,
+                    this.mesh.position.y * 2,
+                    this.mesh.position.z * 2
                 )
                 this.body.applyForce(v)
             }
@@ -243,7 +243,7 @@ export default class Ball {
                 const v = new THREE.Vector3(-1, 0, 0)
                 const q = this.camera.quaternion.clone()
                 v.applyQuaternion(q)
-                v.multiplyScalar(this.rightForce / 25)
+                v.multiplyScalar(this.rightForce / 10)
                 this.body.applyImpulse(new CANNON.Vec3(v.x, v.y, v.z))
             }
             if (Math.abs(this.forwardForce) > 0) {
@@ -251,7 +251,7 @@ export default class Ball {
                 const v = new THREE.Vector3(0, 1, 0)
                 const q = this.camera.quaternion.clone()
                 v.applyQuaternion(q)
-                v.multiplyScalar(this.forwardForce / 25)
+                v.multiplyScalar(this.forwardForce / 10)
                 this.body.applyImpulse(new CANNON.Vec3(v.x, v.y, v.z))
             }
         }

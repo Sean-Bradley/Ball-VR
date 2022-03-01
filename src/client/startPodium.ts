@@ -38,6 +38,7 @@ export default class StartPodium {
         )
 
         setInterval(() => {
+            //console.log("startpodium setInterval")
             this.texture.rotation += Math.PI
             this.texture.needsUpdate = true
         }, 500)

@@ -16,6 +16,8 @@ export default class Jewel {
         matcap: new THREE.TextureLoader().load('img/jewel.png'),
     })
 
+    enabled = false
+
     constructor(
         game: Game,
         scene: THREE.Scene,
@@ -61,6 +63,8 @@ export default class Jewel {
     deactivate() {
         this.update = (ball: Ball) => {}
         this.scene.remove(this.mesh)
+
+        this.enabled = false
     }
 
     activate() {
@@ -77,6 +81,8 @@ export default class Jewel {
         }
 
         this.scene.add(this.mesh)
+
+        this.enabled = true
     }
 
     update(ball: Ball) {

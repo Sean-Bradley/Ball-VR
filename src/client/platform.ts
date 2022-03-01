@@ -22,6 +22,10 @@ export default class Platform {
     tween?: Tween
 
     type: number = 0
+    width = 1
+    length = 1
+
+    enabled = false
 
     constructor(scene: THREE.Scene, earth: Earth, world: CANNON.World) {
         this.scene = scene
@@ -38,13 +42,13 @@ export default class Platform {
     randomise() {
         const p = this.earth.getSpawnPosition(2)
         this.mesh.position.copy(p)
-        const x = Math.floor(Math.random() * 20 + 1)
-        const y = Math.floor(Math.random() * 20 + 1)
+        this.width = Math.floor(Math.random() * 20 + 1)
+        this.length = Math.floor(Math.random() * 20 + 1)
         this.mesh.geometry.dispose()
-        this.mesh.geometry = new THREE.BoxGeometry(x, y, 0.5)
+        this.mesh.geometry = new THREE.BoxGeometry(this.width, this.length, 0.5)
         this.mesh.lookAt(0, 0, 0)
         this.body = new CANNON.Body({ mass: 0 })
-        this.body.addShape(new CANNON.Box(new CANNON.Vec3(x / 2, y / 2, 0.25)))
+        this.body.addShape(new CANNON.Box(new CANNON.Vec3(this.width / 2, this.length / 2, 0.25)))
         this.body.position.set(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z)
         this.body.quaternion.set(
             this.mesh.quaternion.x,
@@ -52,6 +56,19 @@ export default class Platform {
             this.mesh.quaternion.z,
             this.mesh.quaternion.w
         )
+    }
+
+    deactivate() {
+        this.update = (delta: number, ball: Ball) => {}
+        this.scene.remove(this.mesh)
+        if (this.body !== undefined) this.world.removeBody(this.body as CANNON.Body)
+        delete this.tween
+        this.path = []
+        this.pathIndex = 0
+        this.pathFrom = new THREE.Vector3()
+        this.pathTo = new THREE.Vector3()
+
+        this.enabled = false
     }
 
     activate(type: number) {
@@ -107,6 +124,8 @@ export default class Platform {
 
         this.scene.add(this.mesh)
         this.world.addBody(this.body as CANNON.Body)
+
+        this.enabled = true
     }
 
     startNextTween() {
@@ -139,17 +158,6 @@ export default class Platform {
                 this.startNextTween()
             })
             .start()
-    }
-
-    deactivate() {
-        this.update = (delta: number, ball: Ball) => {}
-        this.scene.remove(this.mesh)
-        if(this.body !== undefined) this.world.removeBody(this.body as CANNON.Body)
-        delete this.tween
-        this.path = []
-        this.pathIndex = 0
-        this.pathFrom = new THREE.Vector3()
-        this.pathTo = new THREE.Vector3()
     }
 
     update(delta: number, ball: Ball) {

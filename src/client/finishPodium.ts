@@ -72,6 +72,7 @@ export default class FinishPodium {
         )
 
         setInterval(() => {
+            //console.log("finishpodium setInterval")
             this.texture.rotation += Math.PI
             this.texture.needsUpdate = true
         }, 500)
@@ -113,6 +114,7 @@ export default class FinishPodium {
                     this.explosions[this.explosionCounter].explode(this.group.position)
                     this.explosionCounter += 1
                     this.winnerAnimationInterval = setInterval(() => {
+                        //console.log("winnerAnimationInterval setInterval")
                         this.explosions[this.explosionCounter].explode(this.group.position)
                         this.explosionCounter += 1
                         if (this.explosionCounter > 3) {

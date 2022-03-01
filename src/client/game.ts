@@ -348,7 +348,7 @@ export default class Game {
                 }),
             }
             //console.log(JSON.stringify(this.levelConfigs))
-           // console.log(this.levelConfigs)
+            // console.log(this.levelConfigs)
         }
 
         this.earth.planes.forEach((p) => {
@@ -375,6 +375,8 @@ export default class Game {
 
         this.update = (delta: number) => {
             //replacing the update function with this
+            ;(this.ui as UI).updateControls(delta)
+
             TWEEN.update()
 
             this.physics.update(delta)

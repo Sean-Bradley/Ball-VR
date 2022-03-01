@@ -5,12 +5,15 @@ import * as CANNON from 'cannon-es'
 import Earth from './earth'
 
 export default class Spring {
-    scene:THREE.Scene
+    scene: THREE.Scene
     private earth: Earth
     mesh = new THREE.Mesh()
+
     static material = new THREE.MeshMatcapMaterial({
         matcap: new THREE.TextureLoader().load('img/matcap-opal.png'),
     })
+
+    enabled = false
 
     constructor(scene: THREE.Scene, earth: Earth) {
         this.scene = scene
@@ -52,6 +55,7 @@ export default class Spring {
     deactivate() {
         this.update = (ball: Ball) => {}
         this.scene.remove(this.mesh)
+        this.enabled = false
     }
 
     activate() {
@@ -68,8 +72,10 @@ export default class Spring {
             }
             this.mesh.rotation.z += 0.1
         }
-        
+
         this.scene.add(this.mesh)
+
+        this.enabled = true
     }
 
     update(ball: Ball) {

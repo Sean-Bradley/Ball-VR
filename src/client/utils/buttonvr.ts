@@ -156,6 +156,7 @@ export default class ButtonVR {
         this._camera.add(this._progress)
 
         this._interval = setInterval(() => {
+            console.log("buttonvr activate setInterval")
             this.update()
         }, 100)
     }

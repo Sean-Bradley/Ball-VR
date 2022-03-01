@@ -11,6 +11,7 @@ export default class Mine {
     mesh = new THREE.Mesh()
     static material = new THREE.MeshPhongMaterial({ color: 0x000000 })
     explosions: { [id: string]: Explosion } = {}
+    enabled = false
 
     constructor(scene: THREE.Scene, earth: Earth, explosions: { [id: string]: Explosion }) {
         this.scene = scene
@@ -57,6 +58,7 @@ export default class Mine {
     deactivate() {
         this.update = (ball: Ball) => {}
         this.scene.remove(this.mesh)
+        this.enabled = false
     }
 
     activate() {
@@ -83,6 +85,8 @@ export default class Mine {
         }
 
         this.scene.add(this.mesh)
+
+        this.enabled = true
     }
 
     update(ball: Ball) {

@@ -81,11 +81,6 @@
                 display: none;
             }
 
-            #editButton {
-                pointer-events: auto;
-                display: none;
-            }
-
             #startButton:hover {
                 opacity: 1;
             }
@@ -99,6 +94,21 @@
             #desktopCommands,
             #selectLevelOptions {
                 margin: 10px;
+            }
+
+            #editButton {
+                pointer-events: auto;
+            }
+
+            #editPanel{
+                position: absolute;
+                top: 60px;
+                left: 4px;
+                width: 200px;
+                height: 50px;
+                display: none;
+                border: 1px solid rgb(255, 255, 255);
+                background: rgba(0, 0, 0, 0.1);
             }
         </style>
     </head>
@@ -138,6 +148,11 @@
             </div>
         </div>
         <!-- <div id="pingStats"></div> -->
+        <div id="editPanel">
+            <input id="levelName" type="text" value="changeme" />
+            <br/>
+            <button id="createLevelJSON">Create Level JSON</button>
+        </div>
         <script type="module" src="bundle.js"></script>
     </body>
 </html>

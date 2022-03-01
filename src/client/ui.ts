@@ -1,13 +1,12 @@
 import * as THREE from 'three'
 import Ball from './ball'
 import Game from './game'
-import { tween, TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
 import EndRoundUI from './endRoundUI'
 import FinishPodium from './finishPodium'
 import InGameUI from './inGameUI'
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
-import { DragControls } from 'three/examples/jsm/controls/DragControls'
-import StartPodium from './startPodium'
+import LevelEditor from './levelEditor'
+import { Camera } from 'three'
 
 export default class UI {
     game: Game
@@ -15,12 +14,12 @@ export default class UI {
     menuActive: boolean
     private renderer: THREE.WebGLRenderer
     ball: Ball
-    private startButton: HTMLButtonElement
-    private editButton: HTMLButtonElement
+    startButton: HTMLButtonElement
+    editButton: HTMLButtonElement
     menuPanel: HTMLDivElement
     private camAngle = 0
     keyMap: { [id: string]: boolean } = {}
-    private gameCommandInterval?: NodeJS.Timer
+    //private gameCommandInterval?: NodeJS.Timer
     controllerGrip0?: THREE.Group
     controllerGrip1?: THREE.Group
     private controllerConnected: { [id: number]: boolean } = {}
@@ -29,9 +28,6 @@ export default class UI {
     endRoundUI?: EndRoundUI
     inGameUI?: InGameUI
     VRsupported: boolean
-
-    trackballControls?: TrackballControls
-    dragControls?: DragControls
 
     constructor(
         game: Game,
@@ -98,7 +94,13 @@ export default class UI {
             this.editButton.addEventListener(
                 'click',
                 () => {
-                    this.setEditMode()
+                    const levelEditor = new LevelEditor(
+                        this.game,
+                        this.scene,
+                        this.renderer,
+                        this.ball
+                    )
+                    levelEditor.setEditMode(this)
                 },
                 false
             )
@@ -146,7 +148,8 @@ export default class UI {
             })
 
             renderer.xr.addEventListener('sessionend', () => {
-                clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+                //clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+                this.updateControls = (delta: number) => {}
                 this.menuActive = true
                 this.ball.vrActive = false
                 this.ball.scene.add(this.ball.camera)
@@ -164,9 +167,10 @@ export default class UI {
         ;(this.inGameUI as InGameUI).deactivate()
         ;(this.endRoundUI as EndRoundUI).activate()
 
-        clearInterval(this.gameCommandInterval as NodeJS.Timeout)
-        this.gameCommandInterval = setInterval(() => {
-            console.log('showRoundStats key commands')
+        //clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+        //this.gameCommandInterval = setInterval(() => {
+        this.updateControls = (delta: number) => {
+            //console.log('showRoundStats key commands')
             if (this.keyMap['r']) {
                 //replay
                 this.endRoundUI?.deactivate()
@@ -197,7 +201,7 @@ export default class UI {
                     this.setGameUI(this.VRsupported)
                 }
             }
-        }, 50)
+        } //, 50)
     }
 
     lockChangeAlert = () => {
@@ -219,7 +223,8 @@ export default class UI {
             this.startButton.style.display = 'none'
             this.menuActive = false
         } else {
-            clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+            //clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+            this.updateControls = (delta: number) => {}
             clearInterval(
                 (this.game.finishPodium as FinishPodium).winnerAnimationInterval as NodeJS.Timeout
             )
@@ -257,10 +262,11 @@ export default class UI {
     }
 
     setGameUI(VRsupported: boolean) {
-        clearInterval(this.gameCommandInterval as NodeJS.Timeout)
+        //clearInterval(this.gameCommandInterval as NodeJS.Timeout)
         if (VRsupported) {
-            this.gameCommandInterval = setInterval(() => {
-                console.log('keyCheckInterval xr in game')
+            //this.gameCommandInterval = setInterval(() => {
+            this.updateControls = (delta: number) => {
+                //console.log('keyCheckInterval xr in game')
                 //for (let key in Object.keys(this.gamePads)) {
                 // if (this.controllerConnected[0]) {
                 //     const gp = this.gamePads[0]
@@ -280,13 +286,14 @@ export default class UI {
                         }
                     }
                 }
-            }, 50)
+            } //, 50)
         } else {
-            this.gameCommandInterval = setInterval(() => {
+            //this.gameCommandInterval = setInterval(() => {
+            this.updateControls = (delta: number) => {
                 //console.log('desktop game commands')
-                if (this.keyMap['p']) {
-                    console.log(this.ball.object3D.position)
-                }
+                // if (this.keyMap['p']) {
+                //     console.log(this.ball.object3D.position)
+                // }
 
                 if (this.keyMap[' ']) {
                     this.ball.jump()
@@ -295,49 +302,49 @@ export default class UI {
                 this.ball.adjustingForwardForce = false
                 if (this.keyMap['w']) {
                     if (this.ball.forwardForce < 1) {
-                        this.ball.forwardForce += 0.1
+                        this.ball.forwardForce += 2 * delta
                     }
                     this.ball.adjustingForwardForce = true
                 }
                 if (this.keyMap['s']) {
                     if (this.ball.forwardForce > -1) {
-                        this.ball.forwardForce -= 0.1
+                        this.ball.forwardForce -= 2 * delta
                     }
                     this.ball.adjustingForwardForce = true
                 }
                 this.ball.adjustingRightForce = false
                 if (this.keyMap['a']) {
                     if (this.ball.rightForce < 1) {
-                        this.ball.rightForce += 0.1
+                        this.ball.rightForce += 2 * delta
                     }
                     this.ball.adjustingRightForce = true
                 }
                 if (this.keyMap['d']) {
                     if (this.ball.rightForce > -1) {
-                        this.ball.rightForce -= 0.1
+                        this.ball.rightForce -= 2 * delta
                     }
                     this.ball.adjustingRightForce = true
                 }
 
                 if (!this.ball.adjustingForwardForce) {
                     if (this.ball.forwardForce > 0) {
-                        this.ball.forwardForce -= 0.1
+                        this.ball.forwardForce -= delta
                     }
                     if (this.ball.forwardForce < 0) {
-                        this.ball.forwardForce += 0.1
+                        this.ball.forwardForce += delta
                     }
                 }
                 if (!this.ball.adjustingRightForce) {
                     if (this.ball.rightForce > 0) {
-                        this.ball.rightForce -= 0.1
+                        this.ball.rightForce -= delta
                     }
                     if (this.ball.rightForce < 0) {
-                        this.ball.rightForce += 0.1
+                        this.ball.rightForce += delta
                     }
                 }
                 //round
-                this.ball.forwardForce = Math.round(this.ball.forwardForce * 10) / 10
-            }, 50)
+                this.ball.forwardForce = Math.round(this.ball.forwardForce * 100) / 100
+            } //, 50)
         }
         this.game.startRound()
         this.inGameUI?.activate()
@@ -374,118 +381,7 @@ export default class UI {
         }
     }
 
-    raycaster = new THREE.Raycaster()
-
-    setEditMode = () => {
-        document.exitPointerLock()
-        this.menuPanel.style.display = 'none'
-        this.startButton.style.display = 'none'
-        this.menuActive = false
-
-        this.game.configureLevel(this.selectLevel.value)
-
-        this.ball.update = (delta: number) => {}
-        ;(this.game.finishPodium as FinishPodium).update = (ball: Ball) => {}
-
-        this.endRoundUI?.deactivate()
-        this.inGameUI?.deactivate()
-
-        this.renderer.domElement.addEventListener('dblclick', this.onEditorDoubleClick, false)
-        this.renderer.domElement.removeEventListener('mousemove', this.onDocumentMouseMove, false)
-        this.renderer.domElement.removeEventListener('mousewheel', this.onDocumentMouseWheel, false)
-        document.removeEventListener('click', this.onClick, false)
-        document.removeEventListener('keydown', this.onDocumentKey, false)
-        document.removeEventListener('keyup', this.onDocumentKey, false)
-
-        this.trackballControls = new TrackballControls(this.game.camera, this.renderer.domElement)
-        this.trackballControls.rotateSpeed = 5.0
-        this.trackballControls.addEventListener('change', (event) => {
-            const v = new THREE.Vector3(
-                this.game.camera.position.x,
-                this.game.camera.position.y,
-                this.game.camera.position.z
-            ).normalize()
-
-            this.trackballControls?.object.up.copy(v)
-        })
-        this.trackballControls.target.copy((this.game.startPodium as StartPodium).mesh.position)
-
-        const draggables: THREE.Object3D[] = []
-        draggables.push((this.game.startPodium as StartPodium).mesh)
-        draggables.push((this.game.finishPodium as FinishPodium).group)
-        for (let i = 0; i < this.game.maxJewels; i++) {
-            draggables.push(this.game.jewels[i].mesh)
-        }
-        for (let i = 0; i < this.game.maxPlatforms; i++) {
-            draggables.push(this.game.platforms[i].mesh)
-        }
-        for (let i = 0; i < this.game.maxSprings; i++) {
-            draggables.push(this.game.springs[i].mesh)
-        }
-        for (let i = 0; i < this.game.maxMines; i++) {
-            draggables.push(this.game.mines[i].mesh)
-        }
-
-        this.dragControls = new DragControls(draggables, this.game.camera, this.renderer.domElement)
-        this.dragControls.addEventListener('dragstart', (event: THREE.Event) => {
-            ;(this.trackballControls as TrackballControls).enabled = false
-            event.object.material.opacity = 0.33
-        })
-        this.dragControls.addEventListener('dragend', (event: THREE.Event) => {
-            ;(this.trackballControls as TrackballControls).enabled = true
-            event.object.material.opacity = 1
-            event.object.lookAt(0, 0, 0)
-            if (['startpodium', 'finishpodium'].includes(event.object.userData.type)) {
-                event.object.rotateX(-Math.PI / 2)
-            }
-            if (event.object.userData.type === 'finishpodium') {
-                const v = new THREE.Vector3()
-                event.object.getWorldPosition(v)
-                console.log(v)
-            } else {
-                console.log(event.object.position)
-            }
-        })
-
-        setInterval(() => {
-            TWEEN.update()
-            ;(this.trackballControls as TrackballControls).update()
-        }, 16.66666)
-    }
-
-    onEditorDoubleClick = (event: THREE.Event) => {
-        const mouse = {
-            x: (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
-            y: -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1,
-        }
-        this.raycaster.setFromCamera(mouse, this.game.camera)
-
-        const intersects = this.raycaster.intersectObjects(this.ball.bouncables, false)
-
-        if (intersects.length > 0) {
-            const p = intersects[0].point
-            //this.controls?.target.copy(p)
-            new TWEEN.Tween(this.trackballControls?.target)
-                .to(
-                    {
-                        x: p.x,
-                        y: p.y,
-                        z: p.z,
-                    },
-                    500
-                )
-                //.delay (1000)
-                .easing(TWEEN.Easing.Cubic.Out)
-                .onUpdate(() => {
-                    const v = new THREE.Vector3(
-                        this.game.camera.position.x,
-                        this.game.camera.position.y,
-                        this.game.camera.position.z
-                    ).normalize()
-
-                    this.trackballControls?.object.up.copy(v)
-                })
-                .start()
-        }
+    updateControls = (delta: number) => {
+        //this gets replaced at runtime depending on game phases
     }
 }
