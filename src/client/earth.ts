@@ -6,7 +6,7 @@ export default class Earth {
     scene: THREE.Scene
     world: CANNON.World
     topoShaderMaterial: THREE.MeshPhongMaterial
-    material: THREE.MeshPhongMaterial
+    material: THREE.MeshBasicMaterial
     geometries: THREE.BufferGeometry[] = []
     planes: THREE.Mesh[] = []
 
@@ -14,12 +14,9 @@ export default class Earth {
         this.scene = scene
         this.world = world
 
-        this.material = new THREE.MeshPhongMaterial({
-            //color: 0x00ff00,
-            //wireframe: true,
-            //vertexColors: true,
-            //map: texture,
-            flatShading: true,
+        this.material = new THREE.MeshBasicMaterial({
+            color: 0x00ff00,
+            wireframe: true,
         })
         this.topoShaderMaterial = new THREE.MeshPhongMaterial({
             map: new THREE.TextureLoader().load('img/worldColour.5400x2700.jpg'),
@@ -147,58 +144,70 @@ void main() {
         }
 
         //const geometry = new THREE.BoxGeometry(1, 1, 1, 512, 512, 512)
-        //const geometry = new THREE.IcosahedronGeometry(1, 256)
 
-        const rowOffsets0 = [
-            -0.4375, -0.3125, -0.1875, -0.0625, 0.0625, 0.1875, 0.3125, 0.4375, -0.4375, -0.3125,
-            -0.1875, -0.0625, 0.0625, 0.1875, 0.3125, 0.4375, -0.4375, -0.3125, -0.1875, -0.0625,
-            0.0625, 0.1875, 0.3125, 0.4375, -0.4375, -0.3125, -0.1875, -0.0625, 0.0625, 0.1875,
-            0.3125, 0.4375, -0.4375, -0.3125, -0.1875, -0.0625, 0.0625, 0.1875, 0.3125, 0.4375,
-            -0.4375, -0.3125, -0.1875, -0.0625, 0.0625, 0.1875, 0.3125, 0.4375, -0.4375, -0.3125,
-            -0.1875, -0.0625, 0.0625, 0.1875, 0.3125, 0.4375, -0.4375, -0.3125, -0.1875, -0.0625,
-            0.0625, 0.1875, 0.3125, 0.4375,
-        ]
-        const rowOffsets1 = [
-            -0.4375, -0.4375, -0.4375, -0.4375, -0.4375, -0.4375, -0.4375, -0.4375, -0.3125,
-            -0.3125, -0.3125, -0.3125, -0.3125, -0.3125, -0.3125, -0.3125, -0.1875, -0.1875,
-            -0.1875, -0.1875, -0.1875, -0.1875, -0.1875, -0.1875, -0.0625, -0.0625, -0.0625,
-            -0.0625, -0.0625, -0.0625, -0.0625, -0.0625, 0.0625, 0.0625, 0.0625, 0.0625, 0.0625,
-            0.0625, 0.0625, 0.0625, 0.1875, 0.1875, 0.1875, 0.1875, 0.1875, 0.1875, 0.1875, 0.1875,
-            0.3125, 0.3125, 0.3125, 0.3125, 0.3125, 0.3125, 0.3125, 0.3125, 0.4375, 0.4375, 0.4375,
-            0.4375, 0.4375, 0.4375, 0.4375, 0.4375,
-        ]
+        const segments = 8
+        const halfSegments = segments / 2
+        const faceSegmentCount = segments * segments
+        const grain = 1 / segments // 0.125 // check if the same as 1/segments
 
-        for (let i = 0; i < 64; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        const rowOffsets0 = []
+        for (let i = 0; i < segments; i++) {
+            for (let j = -halfSegments; j < halfSegments; j++) {
+                rowOffsets0.push(j * grain + grain / 2)
+            }
+        }
+
+        const rowOffsets1 = []
+        for (let i = -halfSegments; i < halfSegments; i++) {
+            for (let j = 0; j < segments; j++) {
+                rowOffsets1.push(i * grain + grain / 2)
+            }
+        }
+
+        let lower = 0
+        let higher = faceSegmentCount
+
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].translate(rowOffsets0[i], rowOffsets1[i], 0.5)
         }
-        for (let i = 64; i < 128; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        lower += faceSegmentCount
+        higher += faceSegmentCount
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].rotateY(Math.PI / 2)
-            this.geometries[i].translate(0.5, rowOffsets0[i - 64], rowOffsets1[i - 64])
+            this.geometries[i].translate(0.5, rowOffsets0[i - lower], rowOffsets1[i - lower])
         }
-        for (let i = 128; i < 192; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        lower += faceSegmentCount
+        higher += faceSegmentCount
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].rotateY(Math.PI)
-            this.geometries[i].translate(rowOffsets0[i - 128], rowOffsets1[i - 128], -0.5)
+            this.geometries[i].translate(rowOffsets0[i - lower], rowOffsets1[i - lower], -0.5)
         }
-        for (let i = 192; i < 256; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        lower += faceSegmentCount
+        higher += faceSegmentCount
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].rotateY(-Math.PI / 2)
-            this.geometries[i].translate(-0.5, rowOffsets0[i - 192], rowOffsets1[i - 192])
+            this.geometries[i].translate(-0.5, rowOffsets0[i - lower], rowOffsets1[i - lower])
         }
-        for (let i = 256; i < 320; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        lower += faceSegmentCount
+        higher += faceSegmentCount
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].rotateX(-Math.PI / 2)
-            this.geometries[i].translate(rowOffsets0[i - 256], 0.5, rowOffsets1[i - 256])
+            this.geometries[i].translate(rowOffsets0[i - lower], 0.5, rowOffsets1[i - lower])
         }
-        for (let i = 320; i < 384; i++) {
-            this.geometries.push(new THREE.PlaneGeometry(0.125, 0.125, 8, 8))
+        lower += faceSegmentCount
+        higher += faceSegmentCount
+        for (let i = lower; i < higher; i++) {
+            this.geometries.push(new THREE.PlaneGeometry(grain, grain, segments, segments))
             this.geometries[i].rotateX(Math.PI / 2)
-            this.geometries[i].translate(rowOffsets0[i - 320], -0.5, rowOffsets1[i - 320])
+            this.geometries[i].translate(rowOffsets0[i - lower], -0.5, rowOffsets1[i - lower])
         }
 
-        this.geometries.forEach((geometry, i) => {
+        this.geometries.forEach((geometry) => {
             const plane = new THREE.Mesh(geometry, this.topoShaderMaterial)
             plane.scale.set(100, 100, 100)
             this.scene.add(plane)
@@ -213,8 +222,9 @@ void main() {
             const context = canvas.getContext('2d') as CanvasRenderingContext2D
             context.drawImage(hgtImage, 0, 0)
             const data = context.getImageData(0, 0, 2700, 1350)
-            this.geometries.forEach((geometry, i) => {
+            this.geometries.forEach((geometry) => {
                 const positions = geometry.attributes.position.array as Array<number>
+                //console.log(positions.length)
                 for (let i = 0; i < positions.length; i += 3) {
                     const v = this.cubePointToSpherePoint(
                         new THREE.Vector3(
@@ -257,7 +267,6 @@ void main() {
                     mass: 0,
                 })
                 earthBody.addShape(shape)
-
                 this.world.addBody(earthBody)
             })
 
@@ -312,8 +321,4 @@ void main() {
         }
         return pos
     }
-
-    // update(delta: number) {
-
-    // }
 }

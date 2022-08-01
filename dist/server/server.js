@@ -7,9 +7,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // In the production environment we don't use the webpack-dev-server, so instead type,
-// `npm run build`        (this creates the production version of bundle.js and places it in ./dist/client/)
-// `tsc -p ./src/server`  (this compiles ./src/server/server.ts into ./dist/server/server.js)
-// `npm start            (this starts nodejs with express and serves the ./dist/client folder)
+// npm run build        (this creates the production version of bundle.js and places it in ./dist/client/)
+// tsc -p ./src/server  (this compiles ./src/server/server.ts into ./dist/server/server.js)
+// npm start            (this starts nodejs with express and serves the ./dist/client folder)
 // visit http://127.0.0.1:3001
 //import dotenv from 'dotenv'
 const express_1 = __importDefault(require("express"));
