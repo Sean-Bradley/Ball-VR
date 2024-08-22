@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import Earth from './earth'
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import JEASINGS from 'jeasings'
 
 export default class Ball {
     scene: THREE.Scene
@@ -153,9 +153,9 @@ export default class Ball {
         // }, 500)
 
         //this.camera.position.z = 200
-        new TWEEN.Tween(this.chaseCam.position)
+        new JEASINGS.JEasing(this.chaseCam.position)
             .to({ y: 5 }, 1000)
-            .easing(TWEEN.Easing.Cubic.Out)
+            .easing(JEASINGS.Cubic.Out)
             .start()
     }
 

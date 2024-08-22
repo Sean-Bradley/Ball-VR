@@ -5,7 +5,7 @@ import Game from './game'
 import LevelConfig from './levelConfig'
 import StartPodium from './startPodium'
 import UI from './ui'
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import JEASINGS from 'jeasings'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
 
@@ -18,12 +18,7 @@ export default class LevelEditor {
     trackballControls?: TrackballControls
     dragControls?: DragControls
 
-    constructor(
-        game: Game,
-        scene: THREE.Scene,
-        renderer: THREE.WebGLRenderer,
-        ball: Ball
-    ) {
+    constructor(game: Game, scene: THREE.Scene, renderer: THREE.WebGLRenderer, ball: Ball) {
         this.game = game
         this.scene = scene
         this.renderer = renderer
@@ -134,7 +129,7 @@ export default class LevelEditor {
                         new THREE.MeshNormalMaterial()
                     )
                     pathPoint.position.copy(p)
-                    pathPoint.userData.type = "pathPoint"
+                    pathPoint.userData.type = 'pathPoint'
                     pathPoint.userData.pathPoint = p
                     this.scene.add(pathPoint)
                     draggables.push(pathPoint)
@@ -172,19 +167,17 @@ export default class LevelEditor {
                 console.log(event.object.position)
             }
 
-            if(event.object.userData.type === "pathPoint"){
+            if (event.object.userData.type === 'pathPoint') {
                 console.log(event.object.userData)
                 event.object.userData.pathPoint.copy(event.object.position)
             }
         })
 
         setInterval(() => {
-            TWEEN.update()
+            JEASINGS.update()
             ;(this.trackballControls as TrackballControls).update()
         }, 16.66666)
     }
-
-    
 
     onDoubleClick = (event: THREE.Event) => {
         const mouse = {
@@ -198,7 +191,7 @@ export default class LevelEditor {
         if (intersects.length > 0) {
             const p = intersects[0].point
             //this.controls?.target.copy(p)
-            new TWEEN.Tween(this.trackballControls?.target)
+            new JEASINGS.JEasing(this.trackballControls?.target as THREE.Vector3)
                 .to(
                     {
                         x: p.x,
@@ -208,7 +201,7 @@ export default class LevelEditor {
                     500
                 )
                 //.delay (1000)
-                .easing(TWEEN.Easing.Cubic.Out)
+                .easing(JEASINGS.Cubic.Out)
                 .onUpdate(() => {
                     const v = new THREE.Vector3(
                         this.game.camera.position.x,

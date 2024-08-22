@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Ball from './ball'
 import Game from './game'
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import JEASINGS from 'jeasings'
 import EndRoundUI from './endRoundUI'
 import FinishPodium from './finishPodium'
 import InGameUI from './inGameUI'
@@ -155,9 +155,9 @@ export default class UI {
                 this.ball.scene.add(this.ball.camera)
                 this.endRoundUI?.deactivate()
                 this.inGameUI?.deactivate()
-                new TWEEN.Tween(this.ball.chaseCam.position)
+                new JEASINGS.JEasing(this.ball.chaseCam.position)
                     .to({ y: 20 }, 1000)
-                    .easing(TWEEN.Easing.Cubic.Out)
+                    .easing(JEASINGS.Cubic.Out)
                     .start()
             })
         }
@@ -249,9 +249,9 @@ export default class UI {
             this.menuPanel.style.display = 'block'
             this.menuActive = true
 
-            new TWEEN.Tween(this.ball.chaseCam.position)
+            new JEASINGS.JEasing(this.ball.chaseCam.position)
                 .to({ y: 20 }, 1000)
-                .easing(TWEEN.Easing.Cubic.Out)
+                .easing(JEASINGS.Cubic.Out)
                 .start()
 
             setTimeout(() => {

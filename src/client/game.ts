@@ -11,7 +11,7 @@ import Spring from './spring'
 import Mine from './mine'
 import Explosion from './explosion'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import JEASINGS from 'jeasings'
 import StartPodium from './startPodium'
 import FinishPodium from './finishPodium'
 import Jewel from './jewel'
@@ -226,7 +226,7 @@ export default class Game {
         ;(this.ball as Ball).forwardForce = 0
         ;(this.ball as Ball).rightForce = 0
 
-        TWEEN.removeAll()
+        JEASINGS.removeAll()
         for (let i = 0; i < this.maxPlatforms; i++) {
             this.platforms[i].deactivate()
         }
@@ -377,7 +377,7 @@ export default class Game {
             //replacing the update function with this
             ;(this.ui as UI).updateControls(delta)
 
-            TWEEN.update()
+            JEASINGS.update()
 
             this.physics.update(delta)
             ;(this.ball as Ball).update(delta)

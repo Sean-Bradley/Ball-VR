@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Ball from './ball'
 import * as CANNON from 'cannon-es'
 import Earth from './earth'
-import { Tween, TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import JEASINGS from 'jeasings'
 
 export default class Platform {
     scene: THREE.Scene
@@ -19,7 +19,7 @@ export default class Platform {
     pathIndex = 0
     pathFrom = new THREE.Vector3()
     pathTo = new THREE.Vector3()
-    tween?: Tween
+    jeasing?: JEASINGS.JEasing
 
     type: number = 0
     width = 1
@@ -62,7 +62,7 @@ export default class Platform {
         this.update = (delta: number, ball: Ball) => {}
         this.scene.remove(this.mesh)
         if (this.body !== undefined) this.world.removeBody(this.body as CANNON.Body)
-        delete this.tween
+        delete this.jeasing
         this.path = []
         this.pathIndex = 0
         this.pathFrom = new THREE.Vector3()
@@ -118,7 +118,7 @@ export default class Platform {
                 this.path.push(this.mesh.position.clone())
                 this.pathFrom.copy(this.path[0])
                 this.pathTo.copy(this.path[1])
-                this.startNextTween()
+                this.startNextJEasing()
                 break
         }
 
@@ -128,8 +128,8 @@ export default class Platform {
         this.enabled = true
     }
 
-    startNextTween() {
-        this.tween = new TWEEN.Tween(this.mesh.position)
+    startNextJEasing() {
+        this.jeasing = new JEASINGS.JEasing(this.mesh.position)
             .to(
                 {
                     x: this.path[this.pathIndex].x,
@@ -155,7 +155,7 @@ export default class Platform {
                 this.pathFrom.copy(this.path[this.pathIndex])
                 this.pathTo.copy(this.path[this.pathIndex + 1])
 
-                this.startNextTween()
+                this.startNextJEasing()
             })
             .start()
     }
